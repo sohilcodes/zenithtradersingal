@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Zenith Trader – Signal AI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+    <div class="login-glow"></div>
+    <div class="login-box">
+        <img src="logo.jpg" alt="Zenith Trader" class="login-logo"/>
+        <h2 class="login-title">Zenith <span>Trader</span></h2>
+        <p class="login-sub">AI-Powered Trading Signals</p>
+        <div class="login-input-wrap">
+            <input type="password" id="password-input" placeholder="Enter Password" maxlength="30" autocomplete="off"/>
+            <button id="toggle-pw" type="button">👁️</button>
+        </div>
+        <div id="login-error" class="login-error">❌ Wrong password. Try again.</div>
+        <button id="login-btn" class="login-submit">🔓 Login</button>
+    </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app" style="visibility:hidden;pointer-events:none;">
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <img src="logo.jpg" alt="Zenith Trader" id="logo"/>
+        <span id="topbar-title">ZENITH TRADER</span>
+        <a href="https://t.me/+acQi9-pYh4c1OTE1" target="_blank" id="join-btn">✈️ Join</a>
+    </div>
+
+    <!-- ── SCREEN 1: Pair + Time Select ── -->
+    <div id="screen1" class="screen active">
+        <div class="hero-section">
+            <div class="signal-ai-badge">⚡ SIGNAL AI</div>
+            <p class="hero-sub">Select pair & expiry to get signal</p>
+        </div>
+
+        <!-- Winrate Circle -->
+        <div class="winrate-wrap">
+            <p class="wr-label">Today's Accuracy</p>
+            <div class="wr-circle-outer">
+                <svg class="wr-svg" viewBox="0 0 120 120">
+                    <defs>
+                        <linearGradient id="wrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00c6ff"/>
+                            <stop offset="100%" stop-color="#0072ff"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="wr-track" cx="60" cy="60" r="50"/>
+                    <circle class="wr-fill" id="wr-fill" cx="60" cy="60" r="50"/>
+                </svg>
+                <div class="wr-inner">
+                    <span class="wr-percent" id="wr-num">0%</span>
+                    <span class="wr-sub-text">Winrate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pair + Time pills -->
+        <div class="selector-row">
+            <div class="pill-select" id="pair-pill" onclick="openModal('pair')">
+                <span class="pill-dot"></span>
+                <span id="pill-pair-text">EUR/USD</span>
+                <span class="pill-arrow">▼</span>
+            </div>
+            <div class="pill-select" id="time-pill" onclick="openModal('time')">
+                <span>⏱</span>
+                <span id="pill-time-text">1 min</span>
+                <span class="pill-arrow">▼</span>
+            </div>
+        </div>
+
+        <button id="get-signal-btn" class="get-signal-btn">
+            <span class="btn-icon">⚡</span> Get Signal
+        </button>
+    </div>
+
+    <!-- ── SCREEN 2: Analyzing ── -->
+    <div id="screen2" class="screen">
+        <div class="analyzing-header">
+            <div class="signal-ai-badge">⚡ SIGNAL AI</div>
+        </div>
+
+        <div class="selected-pills">
+            <div class="mini-pill"><span class="pill-dot"></span><span id="ana-pair">EUR/USD</span></div>
+            <div class="mini-pill">⏱ <span id="ana-time">1 min</span></div>
+        </div>
+
+        <!-- Radar Animation -->
+        <div class="radar-wrap">
+            <div class="radar-ring r1"></div>
+            <div class="radar-ring r2"></div>
+            <div class="radar-ring r3"></div>
+            <div class="radar-dot"></div>
+            <div class="radar-sweep"></div>
+        </div>
+
+        <p class="analyzing-text" id="ana-text">Analyzing market...</p>
+        <div class="ana-progress-wrap">
+            <div class="ana-progress-bar" id="ana-bar"></div>
+        </div>
+    </div>
+
+    <!-- ── SCREEN 3: Signal Result ── -->
+    <div id="screen3" class="screen">
+        <div class="signal-ai-badge" style="margin:0 auto;">⚡ SIGNAL AI</div>
+
+        <div class="result-card">
+            <div class="result-pair" id="res-pair">EUR/USD</div>
+            <div class="result-time-row">
+                <span class="result-label">Expiry</span>
+                <span class="result-val" id="res-time">1 min</span>
+            </div>
+            <div class="result-divider"></div>
+            <div class="result-direction" id="res-direction">⬆ CALL</div>
+            <div class="result-accuracy">Accuracy <strong>90%</strong></div>
+        </div>
+
+        <button class="get-signal-btn" id="again-btn">⚡ Get New Signal</button>
+    </div>
+
+</div>
+
+<!-- ── PAIR MODAL ── -->
+<div id="pair-modal" class="modal-overlay" onclick="closeModal('pair')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span>Select Pair</span>
+            <button class="modal-close" onclick="closeModal('pair')">✕</button>
+        </div>
+        <div class="modal-tabs">
+            <button class="modal-tab active" data-cat="currencies" onclick="switchCat(this,'currencies')">💱 Currencies</button>
+            <button class="modal-tab" data-cat="commodities" onclick="switchCat(this,'commodities')">🛢️ Commodities</button>
+        </div>
+        <div class="modal-list" id="modal-pair-list"></div>
+    </div>
+</div>
+
+<!-- ── TIME MODAL ── -->
+<div id="time-modal" class="modal-overlay" onclick="closeModal('time')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span>Select Expiry</span>
+            <button class="modal-close" onclick="closeModal('time')">✕</button>
+        </div>
+        <div class="modal-list" id="modal-time-list"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+  </html>
+  
